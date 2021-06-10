@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'TestModel.apps.TestmodelConfig',
 ]
 
 MIDDLEWARE = [
@@ -54,7 +55,7 @@ ROOT_URLCONF = 'shortvids.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
+        'DIRS': ['BASE_DIR / templates']
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -76,6 +77,12 @@ WSGI_APPLICATION = 'shortvids.wsgi.application'
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'mydatabase',
+    }
+}
+'''
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'shortvids',
         'HOST': '127.0.0.1',
@@ -83,8 +90,7 @@ DATABASES = {
         'USER': 'cjb',
         'PASSWORD': '123456',
     }
-}
-
+    '''
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
