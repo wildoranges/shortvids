@@ -6,6 +6,11 @@ class User(models.Model):
     user_id = models.CharField(max_length=10, primary_key=True)
     password = models.CharField(max_length=10)
 
+    @classmethod
+    def create(cls, user, passwd):
+        user = User(user_id = user, password = passwd)
+        return user
+
 
 class Video(models.Model):
     id = models.AutoField(primary_key=True)
@@ -18,8 +23,6 @@ class Video(models.Model):
     def __str__(self):
         return self.title
 
-    def __str__(self) -> str:
-        return self.user_id
 
 class Comment(models.Model):
     content = models.CharField(max_length=160, default='no comment')
