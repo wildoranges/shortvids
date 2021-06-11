@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.template import loader
+from django.http import Http404
 from django.views import View
 import time
 
@@ -112,16 +113,25 @@ def upload(request):
 
 
 def get_single_video(request, video_id):
-    try:
-        if request.session['is_login']:
-            db_video = models.Video.objects.get(id=video_id)
-            template = loader.get_template('singlevideo.html')
-            context = {
-                'video': db_video,
-            }
+    if request.session['is_login']:
+        db_video = models.Video.objects.get(id=video_id)
+        db_comment = models.Comment.objects.get(video_id=db_video)
+        template = loader.get_template('singlevideo.html')
+        context = {
+            'video': db_video,
+            'comments': db_comment,
+        }
+        if request.method == "POST":
+            net_content = request.POST['new_comment']
+            user = db_video.uploader_id
+            db_new_com = models.Comment.objects.create(content=net_content, video_id=db_video, uploader_id=user)
+            db_new_com.save()
+        try:
             return HttpResponse(template.render(context, request))
-        else:
-            return redirect('../login')
-    except Exception as e:
-        print(e)
+        except Exception as e:
+            print(e)
+            raise Http404("video not found")
+            return redirect('../allvideos/')
+    else:
         return redirect('../login')
+

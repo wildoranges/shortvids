@@ -73,6 +73,13 @@ WSGI_APPLICATION = 'shortvids.wsgi.application'
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'Mydatabase',
+    }
+}
+
+'''
+'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'shortvids',
         'HOST': '127.0.0.1',
@@ -80,8 +87,7 @@ DATABASES = {
         'USER': 'cjb',
         'PASSWORD': '123456',
     }
-}
-
+'''
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
