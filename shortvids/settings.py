@@ -130,4 +130,8 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = 'E:/db_exp/media'
 
+
 # MEDIA_URL = 'videos/'
+
+MEDIA_URL = '/videos/media/'
+

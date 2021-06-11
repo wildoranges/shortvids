@@ -1,7 +1,12 @@
 {#login/templates/login/index.html#}
 
 {% extends 'base.html' %}
+
 {% block title %}主页{% endblock %}
+<h1>欢迎观看视频</h1>
 {% block content %}
-    <h1>欢迎回来！</h1>
+    {% for vid in ref %}
+        <img class="fit-picture" src="{{MEDIA_URL}}{{ vid.cover_path}}"/>
+        <a href="{% url 'single_video' vid.id %}">{{ vid.title }}</a>
+    {% endfor %}
 {% endblock %}
