@@ -124,4 +124,4 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = 'D:\media'
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '/videos/media/'

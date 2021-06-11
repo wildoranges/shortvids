@@ -15,14 +15,13 @@ def vids(request):
 
 
 def get_all_vids(request):
-    try:
-        if request.session['is_login']:
-            return render(request, 'index.html')
-        else:
-            return redirect('../login/')
-    except Exception as e:
-        print(e)
+    if request.session.get('is_login', False):
+        all_vids = models.Video.objects.all()
+        return render(request,'index.html',{'ref':all_vids,'MEDIA_URL':settings.MEDIA_URL})
+
+    else:
         return redirect('../login/')
+
 
 
 def login(request):
@@ -111,8 +110,10 @@ def upload(request):
             video = request.FILES['video']
             cover = request.FILES['cover']
             now = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-            vid_name, vid_ext = os.path.splitext(video.name)
-            cov_name, cov_ext = os.path.splitext(cover.name)
+            vid_name, vid_ext = os.path.splitext(os.path.split(video.name)[1])
+            print("vid_name", vid_name)
+            cov_name, cov_ext = os.path.splitext(os.path.split(cover.name)[1])
+            print("cov_name", cov_name)
             if vid_ext.lower() not in support_vids:
                 message = "不支持的视频类型，仅支持.mp4,.webm,.ogg"
                 return render(request, 'upload.html', {"message": message})
@@ -121,8 +122,8 @@ def upload(request):
                 return render(request, 'upload.html', {"message": message})
             video.name = userid + '_' + vid_name + '_' + now + vid_ext
             cover.name = userid + '_' + cov_name + '_' + now + cov_ext
-            vid_file_path = os.path.join(settings.MEDIA_ROOT, 'videos', video.name)
-            cov_file_path = os.path.join(settings.MEDIA_ROOT, 'images', cover.name)
+            vid_file_path = os.path.join('videos', video.name)
+            cov_file_path = os.path.join('images', cover.name)
             db_video = models.Video.objects.create(title=title, path=vid_file_path, vid=video, cover=cover,
                                                    cover_path=cov_file_path, uploader_id=user)
             db_video.save()
