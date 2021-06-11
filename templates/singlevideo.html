@@ -1,0 +1,21 @@
+{#login/templates/login/index.html#}
+
+{% extends 'base.html' %}
+{% block title %}主页{% endblock %}
+{% block content %}
+    <h1>欢迎回来！</h1>
+    <div>
+    <ul>
+    {% if video %}
+        video : {{video.title}}
+            <video width="320" height="240" controls="controls">
+            <source src={{video.path}} type="video/mp4" />
+            <source src={{video.path}} type="video/ogg" />
+            Your browser does not support the video tag.
+            </video>
+    {% else %}
+        <p>No video</p>
+    {% endif %}
+    </ul>
+    </div>
+{% endblock %}
