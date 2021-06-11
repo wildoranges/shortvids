@@ -1,14 +1,33 @@
 {#login/templates/login/index.html#}
 
 {% extends 'base.html' %}
-{% block title %}主页{% endblock %}
+{% block title %}上传{% endblock %}
 {% block content %}
-    <h1>this page is under construction！</h1>
-    <form action="" method="POST">{% csrf_token %}
+    <div class="container">
+        <div class="col-md-4 col-md-offset-4">
+          <form class='form-login' action="/videos/upload/" method="post" enctype="multipart/form-data">    
 
-    <input type="text" name="title" placeholder="Enter Video Title here"><br>
-    <input type="file" name="video" accept="video/*">
-    <button type="submit"> Upload New Video </button>
+              {% if message %}
+                    <div class="alert alert-warning">{{ message }}</div>
+              {% endif %}
 
-    </form>
+              {% csrf_token %}
+              <h2 class="text-center">视频上传</h2>
+              <div class="form-group">
+                <label for="id_title">视频标题：</label>
+                <input type="text" name="title" class="form-control" id="id_title" placeholder="title" autofocus required>
+              </div>
+              <div class="form-group">
+                <label for="id_video">上传视频：</label>
+                <input type="file" name="video" class="form-control" id="id_video" placeholder="video" autofocus required>
+              </div>
+              <div class="form-group">
+                  <label for="id_cover">上传封面:</label>
+                  <input type="file" name="cover" class="form-control" id="id_cover" placeholder="cover" autofocus required>
+              </div>
+              <button type="reset" class="btn btn-default pull-left">清空</button>
+              <button type="submit" class="btn btn-primary pull-right">上传视频</button>
+          </form>
+        </div>
+    </div> <!-- /container -->
 {% endblock %}

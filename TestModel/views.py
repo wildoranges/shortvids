@@ -106,7 +106,7 @@ def upload(request):
             video = request.POST['video']
             db_video = models.Video.objects.create(title=title, uploader_id=user, path="..")
             db_video.save()
-        return redirect('../index')
+        return render(request, 'upload.html')
     else:
         return redirect('../login')
 

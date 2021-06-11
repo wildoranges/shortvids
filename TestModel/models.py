@@ -11,7 +11,9 @@ class Video(models.Model):
     title = models.CharField(max_length=30, default='untitled')
     create_time = models.DateTimeField(auto_now_add=True)
     path = models.CharField(max_length=256)
+    vid = models.FileField(verbose_name="视频")
     cover_path = models.CharField(max_length=256)
+    cover = models.ImageField(verbose_name="封面")
     uploader_id = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
