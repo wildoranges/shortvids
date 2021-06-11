@@ -143,13 +143,17 @@ def get_single_video(request, video_id):
         try:
             db_video = models.Video.objects.get(id=video_id)
             db_comment = models.Comment.objects.filter(video_id=db_video)
-            print(db_video.path)
+            # print(db_video.path)
+            cur_url = request.build_absolute_uri()
+            # print(cur_url)
             template = loader.get_template('singlevideo.html')
             context = {
                 'video': db_video,
                 'comments': db_comment,
+                'url': cur_url
             }
             # print(db_video.video.cover.url)
+            # to display in chrome the video need to be mp4 H264 use online convert
             if request.method == "POST":
                 net_content = request.POST['new_comment']
                 user = db_video.uploader_id
