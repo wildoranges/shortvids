@@ -128,6 +128,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-MEDIA_ROOT = 'D:\media'
+MEDIA_ROOT = 'E:/db_exp/media'
 
-MEDIA_URL = '/media/'
+# MEDIA_URL = 'videos/'
