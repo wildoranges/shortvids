@@ -1,10 +1,10 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.template import loader
-from django.views import View
-import time
+from datetime import datetime
+import os
+from shortvids import settings
 
 from . import models
 
@@ -98,14 +98,36 @@ def search(request):
         return render(request, 'search.html')
 
 
+support_vids = ['.mp4', '.webm', '.ogg']
+support_imgs = ['.jpg', '.png', '.jpeg', '.bmp', '.webp']
+
+
 def upload(request):
-    if request.session['is_login']:
+    if request.session.get('is_login', False):
         if request.method == "POST":
-            user = request.session['user_id']
+            userid = request.session['user_id']
+            user = models.User.objects.get(user_id=userid)
             title = request.POST['title']
-            video = request.POST['video']
-            db_video = models.Video.objects.create(title=title, uploader_id=user, path="..")
+            video = request.FILES['video']
+            cover = request.FILES['cover']
+            now = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+            vid_name, vid_ext = os.path.splitext(video.name)
+            cov_name, cov_ext = os.path.splitext(cover.name)
+            if vid_ext.lower() not in support_vids:
+                message = "不支持的视频类型，仅支持.mp4,.webm,.ogg"
+                return render(request, 'upload.html', {"message": message})
+            if cov_ext.lower() not in support_imgs:
+                message = "不支持的图片类型，仅支持.jpg,.png,.jpeg,.bmp,.webp"
+                return render(request, 'upload.html', {"message": message})
+            video.name = userid + '_' + vid_name + '_' + now + vid_ext
+            cover.name = userid + '_' + cov_name + '_' + now + cov_ext
+            vid_file_path = os.path.join(settings.MEDIA_ROOT, 'videos', video.name)
+            cov_file_path = os.path.join(settings.MEDIA_ROOT, 'images', cover.name)
+            db_video = models.Video.objects.create(title=title, path=vid_file_path, vid=video, cover=cover,
+                                                   cover_path=cov_file_path, uploader_id=user)
             db_video.save()
+            return redirect('../index')
+
         return render(request, 'upload.html')
     else:
         return redirect('../login')
