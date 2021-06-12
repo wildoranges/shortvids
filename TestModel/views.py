@@ -1,10 +1,16 @@
+
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.template import loader
+
+from django.http import Http404
+
 from datetime import datetime
 import os
 from shortvids import settings
+
+
 
 from . import models
 
@@ -21,6 +27,7 @@ def get_all_vids(request):
 
     else:
         return redirect('../login/')
+
 
 
 
@@ -135,16 +142,32 @@ def upload(request):
 
 
 def get_single_video(request, video_id):
-    try:
-        if request.session['is_login']:
+    if request.session['is_login']:
+        try:
             db_video = models.Video.objects.get(id=video_id)
+            db_comment = models.Comment.objects.filter(video_id=db_video)
+            # print(db_video.path)
+            cur_url = request.build_absolute_uri()
+            # print(cur_url)
             template = loader.get_template('singlevideo.html')
             context = {
                 'video': db_video,
+                'comments': db_comment,
+                'url': cur_url
             }
+            # print(db_video.video.cover.url)
+            # to display in chrome the video need to be mp4 H264 use online convert
+            if request.method == "POST":
+                net_content = request.POST['new_comment']
+                user = db_video.uploader_id
+                db_new_com = models.Comment.objects.create(content=net_content, video_id=db_video, uploader_id=user)
+                db_new_com.save()
+
             return HttpResponse(template.render(context, request))
-        else:
-            return redirect('../login')
-    except Exception as e:
-        print(e)
+        except Exception as e:
+            print(e)
+            raise Http404("video not found")
+            return redirect('../allvideos/')
+    else:
         return redirect('../login')
+

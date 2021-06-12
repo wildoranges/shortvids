@@ -3,19 +3,58 @@
 {% extends 'base.html' %}
 {% block title %}主页{% endblock %}
 {% block content %}
-    <h1>欢迎回来！</h1>
-    <div>
-    <ul>
+
+<head>
+    <script type="text/javascript">
+        function copy() {
+            const e = document.getElementById("copy");
+            e.select(); // 选择对象
+            document.execCommand("Copy"); // 执行浏览器复制命令
+            alert("视频链接复制成功，快去和小伙伴们分享吧！");
+        }
+    </script>
+</head>
+
+
+    <div >
     {% if video %}
-        video : {{video.title}}
-            <video width="320" height="240" controls="controls">
-            <source src={{video.path}} type="video/mp4" />
-            <source src={{video.path}} type="video/ogg" />
-            Your browser does not support the video tag.
+        <h2 align="center">video : {{video.title}}</h2>
+        <hr/>
+        <!--img src="{{video.cover.url}}" width="video.cover.width_field" height="240"/-->
+        <br>
+        <div style="text-align:center">
+            <video width="video.vid.width_field" height="320" controls="controls" >
+            <source src="{{video.vid.url}}" type="video/mp4" />
             </video>
+        </div>
+        <br>
+        <body>
+        <p style="margin-left:300px; font-size:20px">视频链接:</p>
+        <textarea id="copy" style="text-align:center; margin-left:430px; margin-top:10px; width:40%">{{ url }}</textarea>
+        <input type="button" onclick="copy();" value="点击复制" style="margin-left:950px; margin-top:10px">
+        </body>
+        <ul>
+        {% for comment in comments %}
+            <li> {{ comment.content }}  </li>
+            <br>
+            <p align="left">from user : {{comment.uploader_id.user_id}}  </p>
+            <br>
+        {% endfor %}
+        </ul>
+        <div class="form_input">
+            <form class="form_input" method="post">
+            <p align="left" style="font-size:30px; margin-left:20px">新的留言:</p>
+            {% csrf_token %}
+            <input type="text" name="new_comment" style="margin-left:40px; margin-top:30px; width:40%; height: 30px">
+            <br><br>
+            <button type="submit" style="margin-left:500px">提交</button>
+            </form>
+            <br><br><br>
+            <hr/>
+        </div>
     {% else %}
         <p>No video</p>
     {% endif %}
-    </ul>
     </div>
+
 {% endblock %}
