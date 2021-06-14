@@ -1,4 +1,3 @@
-
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
@@ -9,8 +8,6 @@ from django.http import Http404
 from datetime import datetime
 import os
 from shortvids import settings
-
-
 
 from . import models
 
@@ -23,12 +20,10 @@ def vids(request):
 def get_all_vids(request):
     if request.session.get('is_login', False):
         all_vids = models.Video.objects.all()
-        return render(request,'index.html',{'ref':all_vids,'MEDIA_URL':settings.MEDIA_URL})
+        return render(request, 'index.html', {'ref': all_vids, 'MEDIA_URL': settings.MEDIA_URL})
 
     else:
         return redirect('../login/')
-
-
 
 
 def login(request):
@@ -101,6 +96,15 @@ def search(request):
         return redirect('../login/')
 
     else:
+        if request.method == "POST":
+            sel = request.POST.get("searchSelect", "videos")
+            query = request.POST.get("searchInput", None)
+            if sel == "videos" and query:
+                db_videos = models.Video.objects.filter(title__icontains=query)
+                return render(request, 'index.html', {'ref': db_videos, 'MEDIA_URL': settings.MEDIA_URL})
+            elif sel == "users" and query:
+                pass  # TODO:finish user
+            return render(request, "search.html")
         return render(request, 'search.html')
 
 
@@ -166,8 +170,7 @@ def get_single_video(request, video_id):
             return HttpResponse(template.render(context, request))
         except Exception as e:
             print(e)
-            raise Http404("video not found")
-            return redirect('../allvideos/')
+            raise Http404("video not found")  # FIXME:FIX 404
+            return redirect('../index/')
     else:
         return redirect('../login')
-
