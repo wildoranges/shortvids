@@ -7,13 +7,14 @@
 <head>
     <script type="text/javascript">
         function copy() {
-            var e = document.getElementById("copy");
+            const e = document.getElementById("copy");
             e.select(); // 选择对象
             document.execCommand("Copy"); // 执行浏览器复制命令
-            alert("复制成功！");
+            alert("视频链接复制成功，快去和小伙伴们分享吧！");
         }
     </script>
 </head>
+
 
     <div >
     {% if video %}
@@ -57,3 +58,4 @@
     </div>
 
 {% endblock %}
+
