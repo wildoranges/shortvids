@@ -1,8 +1,6 @@
 from django.db import models
-
 import os
 from shortvids import settings
-
 
 
 class User(models.Model):
@@ -11,7 +9,7 @@ class User(models.Model):
 
     @classmethod
     def create(cls, user, passwd):
-        user = User(user_id = user, password = passwd)
+        user = User(user_id=user, password=passwd)
         return user
 
 

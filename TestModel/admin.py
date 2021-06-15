@@ -2,7 +2,7 @@ from django.contrib import admin
 from . import models
 
 from .models import Video
-from .models import *
+from . import models
 # Register your models here.
 admin.site.register(models.User)
 admin.site.register(models.Video)
