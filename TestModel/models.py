@@ -1,11 +1,18 @@
 from django.db import models
+
 import os
 from shortvids import settings
+
 
 
 class User(models.Model):
     user_id = models.CharField(max_length=10, primary_key=True)
     password = models.CharField(max_length=10)
+
+    @classmethod
+    def create(cls, user, passwd):
+        user = User(user_id = user, password = passwd)
+        return user
 
 
 class Video(models.Model):

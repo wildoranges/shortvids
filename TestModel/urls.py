@@ -15,4 +15,5 @@ urlpatterns = [
     path('<int:video_id>/', views.get_single_video, name='single_video'),
     re_path('media/(?P<path>.*)', serve, {'document_root': settings.MEDIA_ROOT}),
     path('', views.vids, name='main')
+
 ]

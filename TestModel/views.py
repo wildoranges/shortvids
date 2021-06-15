@@ -1,3 +1,4 @@
+
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
@@ -8,6 +9,7 @@ from django.http import Http404
 from datetime import datetime
 import os
 from shortvids import settings
+
 
 
 from . import models
@@ -30,6 +32,22 @@ def get_all_vids(request):
 def login(request):
     if request.session.get('is_login', False):
         return redirect('../index/')
+
+    if (request.method == "POST") and 'username' in request.POST:
+        user = request.POST['username']
+        passwd = request.POST['password']
+        # print(user)
+        # true_name = request.POST['true_name']
+        try:
+            user_ins = models.User.create(user, passwd)
+            user_ins.save()
+            # request.session['is_login'] = True
+            # request.session['user_id'] = user
+            # request.session.set_expiry(120)
+            return redirect('../login')
+        except Exception as e:
+            print(e)
+            return redirect('../login')
 
     if request.method == "POST":
         user = request.POST.get('username', None)
