@@ -63,10 +63,16 @@ def register(request):
         message = "所有字段都必须填写！"
         if user and passwd and passwd2:
             user = user.strip()
+            if len(user) > 10:
+                message = "用户名长度不能超过10，请重新输入！"
+                return render(request, 'register.html', {"message": message})
             passwd = passwd.strip()
             passwd2 = passwd2.strip()
             if passwd != passwd2:
                 message = "两次密码不同，请重新输入！"
+                return render(request, 'register.html', {"message": message})
+            if len(passwd) > 10:
+                message = "密码长度不能超过10,请重新输入！"
                 return render(request, 'register.html', {"message": message})
             else:
                 same_user = models.User.objects.filter(user_id=user)
@@ -101,6 +107,11 @@ def search(request):
             query = request.POST.get("searchInput", None)
             if sel == "videos" and query:
                 db_videos = models.Video.objects.filter(title__icontains=query)
+                if len(db_videos) == 0:
+                    context = {
+                        "message": "没有更多的视频!"
+                    }
+                    return render(request, 'reminder.html', context)
                 return render(request, 'index.html', {'ref': db_videos, 'MEDIA_URL': settings.MEDIA_URL})
             elif sel == "users" and query:
                 pass  # TODO:finish user
@@ -118,13 +129,16 @@ def upload(request):
             userid = request.session['user_id']
             user = models.User.objects.get(user_id=userid)
             title = request.POST['title']
+            if len(title) > 30:
+                message = "标题长度不能超过30！"
+                return render(request, 'upload.html', {"message": message})
             video = request.FILES['video']
             cover = request.FILES['cover']
             now = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
             vid_name, vid_ext = os.path.splitext(os.path.split(video.name)[1])
-            print("vid_name", vid_name)
+            # print("vid_name", vid_name)
             cov_name, cov_ext = os.path.splitext(os.path.split(cover.name)[1])
-            print("cov_name", cov_name)
+            # print("cov_name", cov_name)
             if vid_ext.lower() not in support_vids:
                 message = "不支持的视频类型，仅支持.mp4,.webm,.ogg"
                 return render(request, 'upload.html', {"message": message})
@@ -135,6 +149,9 @@ def upload(request):
             cover.name = userid + '_' + cov_name + '_' + now + cov_ext
             vid_file_path = os.path.join('videos', video.name)
             cov_file_path = os.path.join('images', cover.name)
+            if len(vid_file_path) > 256 or len(cov_file_path) > 256:
+                message = "文件名过长！"
+                return render(request, 'upload.html', {"message": message})
             db_video = models.Video.objects.create(title=title, path=vid_file_path, vid=video, cover=cover,
                                                    cover_path=cov_file_path, uploader_id=user)
             db_video.save()
@@ -146,7 +163,7 @@ def upload(request):
 
 
 def get_single_video(request, video_id):
-    if request.session['is_login']:
+    if request.session.get('is_login', False):
         try:
             db_video = models.Video.objects.get(id=video_id)
             db_comment = models.Comment.objects.filter(video_id=db_video)
@@ -163,6 +180,8 @@ def get_single_video(request, video_id):
             # to display in chrome the video need to be mp4 H264 use online convert
             if request.method == "POST":
                 net_content = request.POST['new_comment']
+                if len(net_content) > 160:
+                    pass  # FIXME:RESTRICT LENGTH
                 user = db_video.uploader_id
                 db_new_com = models.Comment.objects.create(content=net_content, video_id=db_video, uploader_id=user)
                 db_new_com.save()
@@ -170,7 +189,9 @@ def get_single_video(request, video_id):
             return HttpResponse(template.render(context, request))
         except Exception as e:
             print(e)
-            raise Http404("video not found")  # FIXME:FIX 404
-            return redirect('../index/')
+            context = {
+                "message": "404 Not Found"
+            }
+            return render(request, "reminder.html", context, status=404)
     else:
         return redirect('../login')
