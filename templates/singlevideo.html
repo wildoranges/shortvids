@@ -12,6 +12,16 @@
             document.execCommand("Copy"); // 执行浏览器复制命令
             alert("视频链接复制成功，快去和小伙伴们分享吧！");
         }
+        function filter() {
+            alert("111)
+            const e = document.getElementById("comment");
+            e.select();
+            if (e.val() == '') {
+                alert("留言不得为空")
+            } else if (e.length > 160) {
+                alert("留言最长160")
+            }
+        }
     </script>
 </head>
 
@@ -92,9 +102,9 @@
             <form class="form_input" method="post">
             <p align="left" style="font-size:20px; margin-left:20px">新的留言:</p>
             {% csrf_token %}
-            <input type="text" name="new_comment" style="margin-left:40px; margin-top:10px; width:100%; height:30px">
+            <input type="text" id="comment" name="new_comment" style="margin-left:40px; margin-top:10px; width:100%; height:30px">
             <br><hr/>
-            <button type="submit" style="margin-left:500px">提交</button>
+            <button type="submit" onclick="filter()" style="margin-left:500px">提交</button>
             </form>
             <br><br><br>
             <hr/>

@@ -12,7 +12,10 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('search/', views.search, name='search'),
     path('upload/', views.upload, name='upload'),
+    path('user/', views.user, name='user'),
+    path('user/<str:user_id>', views.get_single_user, name='single_user'),
     path('<int:video_id>/', views.get_single_video, name='single_video'),
+    re_path('user/(?P<user_id>.*)', views.get_single_user, name="single_user"),
     re_path('media/(?P<path>.*)', serve, {'document_root': settings.MEDIA_ROOT}),
     path('', views.vids, name='main')
 

@@ -29,17 +29,38 @@ def get_all_vids(request):
         return redirect('../login/')
 
 
+def user(request):
+    print("not login")
+    if not request.session.get('is_login', False):
+        return redirect('../index/')
+    else:
+        print("1111")
+        db_user = models.User.objects.all()
+        print("sssss")
+        return render(request, 'user.html', {'users': db_user})
+
+
+def get_single_user(request, user_id):
+    if not request.session.get('is_login', False):
+        return redirect('../index/')
+
+    else:
+        db_user = models.User.objects.get(user_id=user_id)
+        db_video = models.Video.objects.filter(uploader_id=db_user)
+        return render(request, 'singleuser.html', {'user': db_user, 'videos': db_video})
+
+
 def login(request):
     if request.session.get('is_login', False):
         return redirect('../index/')
 
     if (request.method == "POST") and 'username' in request.POST:
-        user = request.POST['username']
+        login_user = request.POST['username']
         passwd = request.POST['password']
         # print(user)
         # true_name = request.POST['true_name']
         try:
-            user_ins = models.User.create(user, passwd)
+            user_ins = models.User.create(login_user, passwd)
             user_ins.save()
             # request.session['is_login'] = True
             # request.session['user_id'] = user
@@ -122,6 +143,8 @@ def search(request):
                 db_videos = models.Video.objects.filter(title__icontains=query)
                 return render(request, 'index.html', {'ref': db_videos, 'MEDIA_URL': settings.MEDIA_URL})
             elif sel == "users" and query:
+                db_user = models.User.objects.filter(user_id__icontains=query)
+                return render(request, 'user.html', {'users': db_user})
                 pass  # TODO:finish user
             return render(request, "search.html")
         return render(request, 'search.html')
@@ -181,11 +204,16 @@ def get_single_video(request, video_id):
             # print(db_video.video.cover.url)
             # to display in chrome the video need to be mp4 H264 use online convert
             if request.method == "POST":
-                net_content = request.POST['new_comment']
-                user = db_video.uploader_id
-                db_new_com = models.Comment.objects.create(content=net_content, video_id=db_video, uploader_id=user)
-                db_new_com.save()
-
+                comment = request.POST['new_comment']
+                # print(comment)
+                # print(len(comment))
+                if (len(comment) > 0) & (len(comment) <= 160):
+                    print("save comment")
+                    db_user = models.User.objects.get(user_id=request.session['user_id'])
+                    db_new_com = models.Comment.objects.create(content=comment, video_id=db_video, uploader_id=db_user)
+                    db_new_com.save()
+                else:
+                    context['errorMes'] = "invalid comment"
             return HttpResponse(template.render(context, request))
         except Exception as e:
             print(e)
