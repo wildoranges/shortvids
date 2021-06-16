@@ -12,15 +12,10 @@
             document.execCommand("Copy"); // 执行浏览器复制命令
             alert("视频链接复制成功，快去和小伙伴们分享吧！");
         }
+    </script>
+    <script>
         function filter() {
-            alert("111)
-            const e = document.getElementById("comment");
-            e.select();
-            if (e.val() == '') {
-                alert("留言不得为空")
-            } else if (e.length > 160) {
-                alert("留言最长160")
-            }
+            var e = document.getElementById("comment");
         }
     </script>
 </head>
@@ -32,7 +27,7 @@
         }
         .search{
             width: 50%;
-            margin: 100px auto;
+            margin-left: 300px;
             display: flex;
             /*border: 1px solid red;*/
         }
@@ -49,18 +44,14 @@
         .search button{
             float: right;
             flex: 1;
-            height: 40px;
+            margin-left:500px;
+            margin-top: 5px;
+            height: 35px;
+            width: 45px;
             background-color: #0f95b0;
             color: white;
             border-style: none;
             outline: none;
-        }
-        .search select {
-            float: left;
-            flex: 1;
-            height: 40px;
-            border: 2px solid #0f95b0;
-            box-sizing: border-box;
         }
         .search button i{
             font-style: normal;
@@ -69,7 +60,9 @@
             font-size: 16px;
         }
     </style>
-
+{% if errorMes %}
+<p style="font-size: 70px; text-align: center"> {{ errorMes }}</p>
+{% endif %}
     <div >
     {% if video %}
         <h2 align="center">video : {{video.title}}</h2>
@@ -84,12 +77,13 @@
         <br>
         <body>
         <marquee  direction="right"  behavior="alternate"  scrollamount="15"  scrolldelay="10"  loop="10"    height="30"  bgcolor="ABCDEF" >
-	        <font  face="隶书"  color="#0066FF"  size="5">视频链接</font>
+	        <font  face="隶书"  color="#0066FF"  size="5">视频链接 点击复制 视频链接 点击复制</font>
         </marquee>
         <!--p style="margin-left:300px; font-size:20px">视频链接:</p-->
         <textarea id="copy" style="text-align:center; margin-left:430px; margin-top:10px; width:40%; height:25px">{{ url }}</textarea>
         <input type="button" onclick="copy();" value="点击复制" style="margin-left:950px; margin-top:10px; color:purple">
         </body>
+        <hr/>
         <ul>
             {% for comment in comments %}
             <li style="font-size:20px; color:red"> {{ comment.content }}  </li>
@@ -98,17 +92,20 @@
             <hr/>
             {% endfor %}
         </ul>
+        <marquee  direction="right"  behavior="alternate"  scrollamount="15"  scrolldelay="10"  loop="10"    height="30"  bgcolor="ABCDEF" >
+	        <font  face="隶书"  color="#00CC00"  size="5">新的留言 新的留言 新的留言 新的留言</font>
+        </marquee>
+        <body>
         <div class="search">
             <form class="form_input" method="post">
-            <p align="left" style="font-size:20px; margin-left:20px">新的留言:</p>
             {% csrf_token %}
-            <input type="text" id="comment" name="new_comment" style="margin-left:40px; margin-top:10px; width:100%; height:30px">
-            <br><hr/>
-            <button type="submit" onclick="filter()" style="margin-left:500px">提交</button>
+            <input type="text" id="comment" name="new_comment"  style="margin-left:40px; margin-top:5px; width:100%; height:35px">
+            <button type="submit" onclick="filter()" >提交</button>
             </form>
-            <br><br><br>
-            <hr/>
         </div>
+        </body>
+        <br><br><br>
+        <hr/>
     {% else %}
         <p>No video</p>
     {% endif %}
