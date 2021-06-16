@@ -245,3 +245,33 @@ def dynamic(request):
         return render(request, 'dynamic.html', context)
     else:
         return redirect('../login')
+
+
+def subscribe(request):
+    if request.session.get('is_login', False):
+        if request.method == "POST":
+            cur_id = request.POST.get("from_user", None)
+            print(cur_id)
+            if not cur_id:
+                return HttpResponse("invalid user", status=403)
+            try:
+                cur_user = models.User.objects.get(user_id=cur_id)
+            except Exception as e:
+                print(e)
+                return HttpResponse("invalid user", status=403)
+            to_id = request.POST.get("to_user", None)
+            print(to_id)
+            if not to_id:
+                return HttpResponse("invalid user", status=403)
+            try:
+                to_user = models.User.objects.get(user_id=to_id)
+            except Exception as e:
+                print(e)
+                return HttpResponse("invalid subscribe user", status=403)
+            cur_user.friends.add(to_user)
+            cur_user.save()
+            print("success")
+            return HttpResponse("success", status=200)
+        return HttpResponse("not a post", status=403)
+    else:
+        return HttpResponse("not login yet", status=403)

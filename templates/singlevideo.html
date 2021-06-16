@@ -13,13 +13,50 @@
             alert("视频链接复制成功，快去和小伙伴们分享吧！");
         }
     </script>
-    <script>
+    <script type="text/javascript">
         function filter() {
             var e = document.getElementById("comment");
         }
     </script>
+    <script type="text/javascript">
+        function postsub(){
+        const url = "../subscribe/";
+        let csrf = "{{ csrf_token }}";
+        var form_data = new FormData();
+        form_data.append("csrfmiddlewaretoken", csrf);
+        form_data.append("from_user", "{{ request.session.user_id }}");
+        form_data.append("to_user", "{{video.uploader_id.user_id}}");
+        var request = new XMLHttpRequest();
+        request.open("POST", url, true);
+        //request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+        request.send(form_data);
+        var cnt = 0;
+        request.onreadystatechange = function() {
+            if(request.readyState == 4 && request.status == 200){
+                alert("订阅成功");
+            }else if(request.readyState == 4){
+                cnt ++;
+                console.log(cnt);
+                alert("订阅失败，请稍后再试");
+            }
+        }
+    }
+    </script>
 </head>
+    <style type="text/css">
+        .top{
+            color: #fb7fa2;
+            width: 100%;
+            height: 20px;
+            font-size: 20px;
+            display: block;
+            text-align: center;
+            line-height: 15%;
+        }
+    </style>
+    <style type="text/css">
 
+    </style>
     <style type="text/css">
     *{
             padding: 0;
@@ -47,7 +84,7 @@
             margin-left:500px;
             margin-top: 5px;
             height: 35px;
-            width: 45px;
+            width: 60px;
             background-color: #0f95b0;
             color: white;
             border-style: none;
@@ -60,14 +97,14 @@
             font-size: 16px;
         }
     </style>
-{% if errorMes %}
-<p style="font-size: 70px; text-align: center"> {{ errorMes }}</p>
-{% endif %}
     <div >
     {% if video %}
         <h2 align="center">video : {{video.title}}</h2>
         <hr/>
-        <!--img src="{{video.cover.url}}" width="video.cover.width_field" height="240"/-->
+            <a class="top" href="{% url 'single_user' video.uploader_id.user_id %}">来自用户:{{video.uploader_id.user_id}}</a>
+            <div style="text-align: center">
+            <button style="height: 30px;width: 80px;margin-top: 10px;background-color: #fb7fa2;color: white;border-style: none;" id="btn" onclick="postsub()" value={{video.uploader_id.user_id}}>+点击订阅</button>
+            </div>
         <br>
         <div style="text-align:center">
             <video width="video.vid.width_field" height="320" controls="controls" >
@@ -96,6 +133,9 @@
 	        <font  face="隶书"  color="#00CC00"  size="5">新的留言 新的留言 新的留言 新的留言</font>
         </marquee>
         <body>
+        {% if errorMes %}
+            <div class="alert alert-warning">{{ errorMes }}</div>
+        {% endif %}
         <div class="search">
             <form class="form_input" method="post">
             {% csrf_token %}

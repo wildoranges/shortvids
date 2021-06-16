@@ -5,9 +5,37 @@
 {% block title %}个人主页{% endblock %}
 {% block content %}
 {% if user %}
-<h2 style="text-align:center"> User_id : {{ user.user_id }} <h2/>
-  <p style="text-align:center"> videos: <p/>
+    <script type="text/javascript">
+        function postsub(){
+        const url = "../subscribe/";
+        let csrf = "{{ csrf_token }}";
+        var form_data = new FormData();
+        form_data.append("csrfmiddlewaretoken", csrf);
+        form_data.append("from_user", "{{ request.session.user_id }}");
+        form_data.append("to_user", "{{ user.user_id }}");
+        var request = new XMLHttpRequest();
+        request.open("POST", url, true);
+        //request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+        request.send(form_data);
+        var cnt = 0;
+        request.onreadystatechange = function() {
+            if(request.readyState == 4 && request.status == 200){
+                alert("订阅成功");
+            }else if(request.readyState == 4){
+                cnt ++;
+                console.log(cnt);
+                alert("订阅失败，请稍后再试");
+            }
+        }
+    }
+    </script>
+<h2 style="text-align:center"> User_id : {{ user.user_id }}
+
 </h2>
+    <div style="text-align: center">
+        <button style="height: 30px;width: 80px;margin-top: 10px;background-color: #fb7fa2;color: white;border-style: none;" id="btn" onclick="postsub()" value={{video.uploader_id.user_id}}>+点击订阅</button>
+    </div>
+    <p style="text-align:center;font-size: 30px;margin-top: 15px"> videos: </p>
 {% endif %}
   <style>
         .main{

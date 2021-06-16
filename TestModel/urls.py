@@ -15,6 +15,7 @@ urlpatterns = [
     path('user/', views.user, name='user'),
     path('user/<str:user_id>', views.get_single_user, name='single_user'),
     path('dynamic/', views.dynamic, name='dynamic'),
+    path('subscribe/', views.subscribe, name='subscribe'),
     path('<int:video_id>/', views.get_single_video, name='single_video'),
     re_path('user/(?P<user_id>.*)', views.get_single_user, name="single_user"),
     re_path('media/(?P<path>.*)', serve, {'document_root': settings.MEDIA_ROOT}),
