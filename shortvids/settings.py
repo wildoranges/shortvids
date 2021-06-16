@@ -74,11 +74,13 @@ WSGI_APPLICATION = 'shortvids.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'mydatabase',
+        'NAME': 'Mydatabase',
     }
 }
+
 '''
-    'default': {
+'default': {
+
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'shortvids',
         'HOST': '127.0.0.1',
@@ -86,7 +88,8 @@ DATABASES = {
         'USER': 'cjb',
         'PASSWORD': '123456',
     }
-    '''
+
+'''
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -127,3 +130,11 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+MEDIA_ROOT = 'E:/db_exp/media'
+
+
+# MEDIA_URL = 'videos/'
+
+MEDIA_URL = '/videos/media/'
+

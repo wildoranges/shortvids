@@ -1,0 +1,15 @@
+{#login/templates/login/index.html#}
+
+{% extends 'base.html' %}
+
+{% block title %}欢迎{% endblock %}
+{% block content %}
+
+
+{% for user in users %}
+    <div class="">
+        <a style="font-size:20px; margin-left:10px;" href="{% url 'single_user' user.user_id %}">{{ user.user_id }}</a>
+    <div/>
+{% endfor %}
+
+{% endblock %}

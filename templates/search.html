@@ -1,0 +1,62 @@
+{#login/templates/login/index.html#}
+
+{% extends 'base.html' %}
+{% block title %}搜索{% endblock %}
+{% block content %}
+    <style type="text/css">
+    *{
+            padding: 0;
+            margin: 0;
+        }
+        .search{
+            width: 50%;
+            margin: 100px auto;
+            display: flex;
+            /*border: 1px solid red;*/
+        }
+        .search input{
+            float: left;//左浮动
+            flex: 4;
+            width: 80%;
+            height: 40px;
+            outline: none;
+            border: 2px solid #0f95b0;
+            box-sizing: border-box;//width=content+border*2+padding*2
+            padding-left: 10px;
+        }
+        .search button{
+            float: right;
+            flex: 1;
+            height: 40px;
+            background-color: #0f95b0;
+            color: white;
+            border-style: none;
+            outline: none;
+        }
+        .search select {
+            float: left;
+            flex: 1;
+            height: 40px;
+            border: 2px solid #0f95b0;
+            box-sizing: border-box;
+        }
+        .search button i{
+            font-style: normal;
+        }
+        .search button:hover{
+            font-size: 16px;
+        }
+    </style>
+    <h1 style="text-align: center; margin-top: 15%">MyShortVideos</h1>
+    <form method="post" action="/videos/search/">
+    <div class="search">
+        {% csrf_token %}
+        <select name="searchSelect">
+            <option value="videos">视频</option>
+            <option value="users">用户</option>
+        </select>
+        <input type="text" placeholder="请输入要搜索的内容..." name="searchInput" id="id_search">
+        <button type="submit"><i>搜索</i></button>
+    </div>
+    </form>>
+{% endblock %}
