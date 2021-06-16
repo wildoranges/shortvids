@@ -202,9 +202,14 @@ def dynamic(request):
         cur_id = request.session.get('user_id', None)
         cur_user = models.User.objects.get(user_id=cur_id)
         friends = cur_user.friends.all()
+        video_set = models.Video.objects.none()
+        for user in friends:
+            videos = models.Video.objects.filter(uploader_id=user)
+            video_set = video_set | videos
         context = {
-            "friends": friends
+            "ref": video_set,
+            "MEDIA_URL": settings.MEDIA_URL
         }
-        # TODO:add render
+        return render(request, 'dynamic.html', context)
     else:
         return redirect('../login')

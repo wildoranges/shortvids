@@ -1,0 +1,44 @@
+{#login/templates/login/index.html#}
+
+{% extends 'base.html' %}
+
+{% block title %}主页{% endblock %}
+{% block content %}
+    <h1 style="text-align: center">订阅动态</h1>
+    <style>
+        .main{
+            width: 100%;
+            padding-left: 12%;
+            overflow: hidden;
+            padding-bottom: 25px;
+        }
+        .fit-picture{
+            width: 30%;
+            height: 200px;
+            float: left;
+            margin-left: 2%;
+            margin-top: 25px;
+        }
+        .fit-picture img{
+            float: left;
+            width: 200px;
+            height: 200px;
+            border: 1px solid darkred;
+        }
+        .fit-picture a{
+            float: left;
+            margin-top: 80px;
+            margin-left: 10px;
+            width: 50px;
+        }
+    </style>
+    <div class="main">
+    {% for vid in ref %}
+        <div class="fit-picture">
+        <img src="{{MEDIA_URL}}{{ vid.cover_path}}"/>
+        <a href="{% url 'single_video' vid.id %}">{{ vid.title }}</a>
+        <!--TODO:add user name and link-->
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}
