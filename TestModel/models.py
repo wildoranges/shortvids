@@ -6,6 +6,10 @@ from shortvids import settings
 class User(models.Model):
     user_id = models.CharField(max_length=10, primary_key=True)
     password = models.CharField(max_length=10)
+    friends = models.ManyToManyField("self", symmetrical=False)
+
+    def __str__(self):
+        return self.user_id
 
 
 class Video(models.Model):

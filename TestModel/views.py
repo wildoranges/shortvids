@@ -195,3 +195,16 @@ def get_single_video(request, video_id):
             return render(request, "reminder.html", context, status=404)
     else:
         return redirect('../login')
+
+
+def dynamic(request):
+    if request.session.get('is_login', False):
+        cur_id = request.session.get('user_id', None)
+        cur_user = models.User.objects.get(user_id=cur_id)
+        friends = cur_user.friends.all()
+        context = {
+            "friends": friends
+        }
+        # TODO:add render
+    else:
+        return redirect('../login')
