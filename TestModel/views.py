@@ -2,13 +2,9 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.template import loader
-
-from django.http import Http404
-
 from datetime import datetime
 import os
 from shortvids import settings
-
 from . import models
 
 
@@ -26,22 +22,44 @@ def get_all_vids(request):
         return redirect('../login/')
 
 
+def user(request):
+    if not request.session.get('is_login', False):
+        return redirect('../login/')
+    else:
+        db_user = models.User.objects.all()
+        return render(request, 'user.html', {'users': db_user})
+
+
+def get_single_user(request, user_id):
+    if not request.session.get('is_login', False):
+        return redirect('../login/')
+
+    else:
+        try:
+            db_user = models.User.objects.get(user_id=user_id)
+            db_video = models.Video.objects.filter(uploader_id=db_user)
+            return render(request, 'singleuser.html', {'user': db_user, 'videos': db_video})
+        except Exception as e:
+            print(e)
+            return render(request, 'reminder.html', {'message': "没有相关用户"})
+
+
 def login(request):
     if request.session.get('is_login', False):
         return redirect('../index/')
 
     if request.method == "POST":
-        user = request.POST.get('username', None)
+        cur_user = request.POST.get('username', None)
         passwd = request.POST.get('password', None)
         message = "所有字段都必须填写！"
-        if user and passwd:
-            user = user.strip()
+        if cur_user and passwd:
+            cur_user = cur_user.strip()
             passwd = passwd.strip()
             try:
-                db_user = models.User.objects.get(user_id=user)
+                db_user = models.User.objects.get(user_id=cur_user)
                 if db_user.password == passwd:
                     request.session['is_login'] = True
-                    request.session['user_id'] = user
+                    request.session['user_id'] = cur_user
                     request.session.set_expiry(1800)
                     return redirect('../index/')
                 else:
@@ -57,13 +75,13 @@ def login(request):
 
 def register(request):
     if request.method == "POST":
-        user = request.POST.get('username', None)
+        cur_user = request.POST.get('username', None)
         passwd = request.POST.get('password', None)
         passwd2 = request.POST.get('password2', None)
         message = "所有字段都必须填写！"
-        if user and passwd and passwd2:
-            user = user.strip()
-            if len(user) > 10:
+        if cur_user and passwd and passwd2:
+            cur_user = cur_user.strip()
+            if len(cur_user) > 10:
                 message = "用户名长度不能超过10，请重新输入！"
                 return render(request, 'register.html', {"message": message})
             passwd = passwd.strip()
@@ -75,15 +93,15 @@ def register(request):
                 message = "密码长度不能超过10,请重新输入！"
                 return render(request, 'register.html', {"message": message})
             else:
-                same_user = models.User.objects.filter(user_id=user)
+                same_user = models.User.objects.filter(user_id=cur_user)
                 if same_user:
                     message = "该用户名已存在，请重新输入！"
                     return render(request, 'register.html', {"message": message})
 
-                new_user = models.User.objects.create(user_id=user, password=passwd)
+                new_user = models.User.objects.create(user_id=cur_user, password=passwd)
                 new_user.save()
                 request.session['is_login'] = True
-                request.session['user_id'] = user
+                request.session['user_id'] = cur_user
                 request.session.set_expiry(1800)
                 return redirect('../index/')
 
@@ -114,7 +132,13 @@ def search(request):
                     return render(request, 'reminder.html', context)
                 return render(request, 'index.html', {'ref': db_videos, 'MEDIA_URL': settings.MEDIA_URL})
             elif sel == "users" and query:
-                pass  # TODO:finish user
+                db_user = models.User.objects.filter(user_id__icontains=query)
+                if len(db_user) == 0:
+                    context = {
+                        'message': "没有相关用户!"
+                    }
+                    return render(request, 'reminder.html', context)
+                return render(request, 'user.html', {'users': db_user})
             return render(request, "search.html")
         return render(request, 'search.html')
 
@@ -127,7 +151,7 @@ def upload(request):
     if request.session.get('is_login', False):
         if request.method == "POST":
             userid = request.session['user_id']
-            user = models.User.objects.get(user_id=userid)
+            cur_user = models.User.objects.get(user_id=userid)
             title = request.POST['title']
             if len(title) > 30:
                 message = "标题长度不能超过30！"
@@ -153,7 +177,7 @@ def upload(request):
                 message = "文件名过长！"
                 return render(request, 'upload.html', {"message": message})
             db_video = models.Video.objects.create(title=title, path=vid_file_path, vid=video, cover=cover,
-                                                   cover_path=cov_file_path, uploader_id=user)
+                                                   cover_path=cov_file_path, uploader_id=cur_user)
             db_video.save()
             return redirect('../index')
 
@@ -179,13 +203,18 @@ def get_single_video(request, video_id):
             # print(db_video.video.cover.url)
             # to display in chrome the video need to be mp4 H264 use online convert
             if request.method == "POST":
-                net_content = request.POST['new_comment']
-                if len(net_content) > 160:
-                    pass  # FIXME:RESTRICT LENGTH
-                user = db_video.uploader_id
-                db_new_com = models.Comment.objects.create(content=net_content, video_id=db_video, uploader_id=user)
-                db_new_com.save()
-
+                comment = request.POST['new_comment']
+                # print(comment)
+                # print(len(comment))
+                if (len(comment) > 0) & (len(comment) <= 160):
+                    print("save comment")
+                    db_user = models.User.objects.get(user_id=request.session['user_id'])
+                    db_new_com = models.Comment.objects.create(content=comment, video_id=db_video, uploader_id=db_user)
+                    db_new_com.save()
+                elif len(comment) <= 0:
+                    context['errorMes'] = "留言不得为空"
+                else:
+                    context['errorMes'] = "留言不得超过160"
             return HttpResponse(template.render(context, request))
         except Exception as e:
             print(e)
@@ -203,9 +232,12 @@ def dynamic(request):
         cur_user = models.User.objects.get(user_id=cur_id)
         friends = cur_user.friends.all()
         video_set = models.Video.objects.none()
-        for user in friends:
-            videos = models.Video.objects.filter(uploader_id=user)
+        for cur_user in friends:
+            videos = models.Video.objects.filter(uploader_id=cur_user)
             video_set = video_set | videos
+        if len(video_set) <= 0:
+            message = '没有更多的动态！'
+            return render(request, "reminder.html", {"message": message})
         context = {
             "ref": video_set,
             "MEDIA_URL": settings.MEDIA_URL

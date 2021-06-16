@@ -41,9 +41,10 @@
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% if request.session.is_login %}
-                <li><a href="#">当前在线：{{ request.session.user_id }}</a></li>
+                <li><a href="{% url 'single_user' request.session.user_id %}">当前在线：{{ request.session.user_id }}</a></li>
                 <li><a href="/videos/search/">搜索</a></li>
                 <li><a href="/videos/upload/">上传</a></li>
+                <li><a href="/videos/dynamic/">动态</a></li>
                 <li><a href="/videos/login/">登录</a></li>
                 <li><a href="/videos/register/">注册</a></li>
                 <li><a href="/videos/logout/">登出</a></li>
