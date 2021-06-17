@@ -36,9 +36,14 @@ def get_single_user(request, user_id):
 
     else:
         try:
+            cur_id = request.session.get("user_id", None)
+            if not cur_id:
+                return redirect("../login")
+            cur_user = models.User.objects.get(user_id=cur_id)
             db_user = models.User.objects.get(user_id=user_id)
             db_video = models.Video.objects.filter(uploader_id=db_user)
-            return render(request, 'singleuser.html', {'user': db_user, 'videos': db_video})
+            context = {'user': db_user, 'videos': db_video, "sub": (db_user in cur_user.friends.all())}
+            return render(request, 'singleuser.html', context)
         except Exception as e:
             print(e)
             return render(request, 'reminder.html', {'message': "没有相关用户"})
@@ -198,17 +203,20 @@ def get_single_video(request, video_id):
             context = {
                 'video': db_video,
                 'comments': db_comment,
-                'url': cur_url
+                'url': cur_url,
+                'sub': False
             }
-            # print(db_video.video.cover.url)
-            # to display in chrome the video need to be mp4 H264 use online convert
+            try:
+                db_user = models.User.objects.get(user_id=request.session['user_id'])
+            except Exception as e:
+                print(e)
+                return redirect("../login")
+            context["sub"] = (db_video.uploader_id in db_user.friends.all())
+            print(context)
             if request.method == "POST":
                 comment = request.POST['new_comment']
-                # print(comment)
-                # print(len(comment))
-                if (len(comment) > 0) & (len(comment) <= 160):
+                if (len(comment) > 0) and (len(comment) <= 160):
                     print("save comment")
-                    db_user = models.User.objects.get(user_id=request.session['user_id'])
                     db_new_com = models.Comment.objects.create(content=comment, video_id=db_video, uploader_id=db_user)
                     db_new_com.save()
                 elif len(comment) <= 0:
@@ -268,10 +276,18 @@ def subscribe(request):
             except Exception as e:
                 print(e)
                 return HttpResponse("invalid subscribe user", status=403)
-            cur_user.friends.add(to_user)
-            cur_user.save()
-            print("success")
+            sub_type = request.POST.get("type", None)
+            if sub_type == "sub":
+                cur_user.friends.add(to_user)
+                cur_user.save()
+                print("success")
+            elif sub_type == "delsub":
+                cur_user.friends.remove(to_user)
+                cur_user.save()
+                print("success")
+            else:
+                return HttpResponse("unrecognized request", status=400)
             return HttpResponse("success", status=200)
         return HttpResponse("not a post", status=403)
     else:
-        return HttpResponse("not login yet", status=403)
+        return HttpResponse("not login yet", status=401)

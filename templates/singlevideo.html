@@ -23,21 +23,39 @@
         const url = "../subscribe/";
         let csrf = "{{ csrf_token }}";
         var form_data = new FormData();
+        var btn = document.getElementById("btn");
+        var type = btn.getAttribute("value");
+        form_data.append("type", type);
         form_data.append("csrfmiddlewaretoken", csrf);
         form_data.append("from_user", "{{ request.session.user_id }}");
         form_data.append("to_user", "{{video.uploader_id.user_id}}");
         var request = new XMLHttpRequest();
         request.open("POST", url, true);
-        //request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
         request.send(form_data);
         var cnt = 0;
         request.onreadystatechange = function() {
             if(request.readyState == 4 && request.status == 200){
-                alert("订阅成功");
+                if(type == "sub"){
+                    btn.setAttribute("value", "delsub");
+                    btn.innerText = "-取消订阅";
+                    alert("订阅成功");
+                }else if(type == "delsub"){
+                    btn.setAttribute("value", "sub");
+                    btn.innerText = "+点击订阅";
+                    alert("取消订阅成功");
+                }else{
+                    alert("unknonw type");
+                }
             }else if(request.readyState == 4){
                 cnt ++;
                 console.log(cnt);
-                alert("订阅失败，请稍后再试");
+                if(type == "sub") {
+                    alert("订阅失败，请稍后再试");
+                }else if(type == "delsub"){
+                    alert("取消订阅失败，请稍后再试");
+                }else{
+                    alert("unknown type");
+                }
             }
         }
     }
@@ -102,9 +120,15 @@
         <h2 align="center">video : {{video.title}}</h2>
         <hr/>
             <a class="top" href="{% url 'single_user' video.uploader_id.user_id %}">来自用户:{{video.uploader_id.user_id}}</a>
+        {% if request.session.user_id != video.uploader_id.user_id %}
             <div style="text-align: center">
-            <button style="height: 30px;width: 80px;margin-top: 10px;background-color: #fb7fa2;color: white;border-style: none;" id="btn" onclick="postsub()" value={{video.uploader_id.user_id}}>+点击订阅</button>
+            {% if not sub %}
+                <button style="height: 30px;width: 80px;margin-top: 10px;background-color: #fb7fa2;color: white;border-style: none;" id="btn" onclick="postsub()" value="sub">+点击订阅</button>
+            {% else %}
+                <button style="height: 30px;width: 80px;margin-top: 10px;background-color: #fb7fa2;color: white;border-style: none;" id="btn" onclick="postsub()" value="delsub">-取消订阅</button>
+            {% endif %}
             </div>
+        {% endif %}
         <br>
         <div style="text-align:center">
             <video width="video.vid.width_field" height="320" controls="controls" >
