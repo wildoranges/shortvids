@@ -8,7 +8,44 @@
 
 为此设计数据库：如下图所示：user，comment，video，
 
+## 系统技术架构设计  
+
+视频浏览网页体系结构图：
+
+![](./fig/E-R-Page-5 (1).png)
+
 ### 数据字典与ER图
+
+User表格：
+
+| 字段名称 | 数据长度         | NULL | 备注     |
+| -------- | ---------------- | ---- | -------- |
+| use_id   | Characters（10） | No   | 用户名   |
+| password | Characters（10） | No   | 用户密码 |
+| friends  | Characters（10） | No   | 用户订阅 |
+
+
+
+视频videos表格：
+
+| 字段名称    | 数据长度          | NULL | 备注                           |
+| ----------- | ----------------- | ---- | ------------------------------ |
+| id          | Characters（256） | No   | 视频的id自动生成<br />作为主键 |
+| title       | Characters（30）  | No   | 视频名称                       |
+| create_time | Time              |      | 创建视频的时间                 |
+| path        | Characters（256） | No   | 视频存放的路径                 |
+| vid         | Binary(64000)     | No   | 视频                           |
+| cover_path  | Characters（256） | No   | 封面存放的路径                 |
+| cover       | Image             | No   | 封面                           |
+| uploader    | Characters（10）  | No   | 上传者的名称                   |
+
+评论comment表格：
+
+| 字段名称    | 数据长度          | NULL | 备注           |
+| ----------- | ----------------- | ---- | -------------- |
+| content     | Characters（160） |      | 评论           |
+| video_id    | Characters（256） | No   | 发表评论的视频 |
+| uploader_id | Characters（256） | Np   | 发表评论的用户 |
 
 ![1](fig/1.png)
 
@@ -232,13 +269,43 @@ class Comment(models.Model):
 
 #### vids
 
+```python
+def vids(request):
+    return redirect('/videos/index/')
+```
+
+
+
 直接重定向到`/videos/index/`
 
 #### get_all_vids
 
+```python
+def get_all_vids(request):
+    if request.session.get('is_login', False):
+        all_vids = models.Video.objects.all()
+        return render(request, 'index.html', {'ref': all_vids, 'MEDIA_URL': settings.MEDIA_URL})
+
+    else:
+        return redirect('../login/')
+```
+
+
+
 处理url为`/index/`的请求。返回主页。包含数据库中的全部视频链接、封面（查询得到全部）。
 
 #### user
+
+```python
+def user(request):
+    if not request.session.get('is_login', False):
+        return redirect('../login/')
+    else:
+        db_user = models.User.objects.all()
+        return render(request, 'user.html', {'users': db_user})
+```
+
+
 
 处理url为`/user/`的请求。返回当前数据库中的user主页链接。
 
@@ -255,6 +322,14 @@ class Comment(models.Model):
 根据用户post的表单，在数据库中查询。若用户已经存在，或两次输入密码不一致或用户名、密码长度超过限制，则输出对应的提示信息。否则将该用户信息插入数据库并跳转至主页。
 
 #### logout
+
+```python
+def logout(request):
+    request.session.flush()
+    return redirect('../login/')
+```
+
+
 
 登出操作会flush当前会话（包括`is_login`和`user_id`）。之后跳转至登录界面。
 
